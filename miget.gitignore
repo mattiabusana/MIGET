@@ -1,0 +1,7 @@
+# Template files
+Sample_data/
+Resources/
+test/
+*.ipynb
+.vscode/
+
