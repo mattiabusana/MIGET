@@ -105,14 +105,12 @@ function write_fortran_report(fortran_multistring, file_name)
 end
 
 
-function write_input_short(dataset::DataFrame, record_n; default_pc = false, scaling_peak_factor = 1e-4)
+function write_input_short(dataset::DataFrame, record_n; default_pc = false, scaling_peak_factor = 1e-4, coeff_var = 0.03)
 
     get_line = dataset[record_n, :]
     study_name = get_line.surname
 
     sets = 1.0
-    pb = 752
-    coeff_var = 0.03
     temp_bath = 37.5
     solubility_o2 = 0.003
     n_gas = 6
@@ -183,8 +181,9 @@ function write_input_short(dataset::DataFrame, record_n; default_pc = false, sca
     po2 = get_line.art_po2
     pco2 = get_line.art_pco2
     ph = get_line.art_ph
+    pb = get_line.pb
 
-    file_1_name = study_name * "_a1"
+    file_1_name =  study_name * "_a1"
 
     # We write a .RAW file that will be fed into the SHORT Fortran Program written by P. D. Wagner
 
