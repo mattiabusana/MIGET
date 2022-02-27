@@ -139,12 +139,12 @@ function write_input_short(dataset::DataFrame, record_n; default_pc = false, sca
         coeff_dth = get_line.λ_dth_def
         coeff_acetone = get_line.λ_acetone_def
     else
-        coeff_sf6 = get_line.λ_sf6
-        coeff_ethane = get_line.λ_ethane
-        coeff_cyclo = get_line.λ_cyclo
-        coeff_iso = get_line.λ_iso
-        coeff_dth = get_line.λ_dth
-        coeff_acetone = get_line.λ_acetone
+        coeff_sf6 = get_line.λ_sf6_measured
+        coeff_ethane = get_line.λ_ethane_measured
+        coeff_cyclo = get_line.λ_cyclo_measured
+        coeff_iso = get_line.λ_iso_measured
+        coeff_dth = get_line.λ_dth_measured
+        coeff_acetone = get_line.λ_acetone_measured
     end
     # The MIGET measurements are always in double, i. e., we always have two samples of arterial blood and two samples of expired gas
     # Here we first load the set 1
