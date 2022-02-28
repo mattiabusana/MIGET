@@ -850,3 +850,157 @@ function import_batch_vqbohr!(dataset::DataFrame, path_to_dir::String)
 
 
 end
+
+
+
+function export_modern_miget(df :: DataFrame, coeff_var = 0.045, name_export_file = "export_miget")
+
+
+    # Export for the modern version of SHORT and VQBOHR
+    
+    df_to_write = DataFrame(n = Any[], correct_temperature = Any[], correct_acetone_loss = Any[], weight_retentions = Int16[], barometric_pressure = Any[], temperature_electrode = Any[], temperature_body = Any[], 
+    temperature_ve = Any[], coeff_var = Any[], a_peak_sf6 = Any[], a_peak_ethane = Any[], a_peak_cyclo = Any[],a_peak_iso = Any[], a_peak_dth  = Any[], 
+    a_peak_acetone = Any[], e_peak_sf6 = Any[], e_peak_ethane = Any[], 
+    e_peak_cyclo = Any[], e_peak_iso = Any[], e_peak_dth = Any[], e_peak_acetone = Any[], 
+    v_peak_sf6 = Any[], v_peak_ethane = Any[], v_peak_cyclo = Any[], v_peak_iso = Any[], v_peak_dth = Any[], v_peak_acetone = Any[],ve = Any[], 
+    qt = Any[], volume_gas_arterial = Any[], volume_blood_arterial = Any[], volume_heparin_arterial = Any[], volume_gas_venous = Any[], 
+    volume_blood_venous = Any[], volume_heparin_venous = Any[], hb = Any[], vo2 = Any[], vco2 = Any[], fio2 = Any[], pao2 = Any[], paco2 = Any[], ph = Any[], fico2 = Any[])
+
+    for i in 1:size(df, 1)
+
+
+        n = df.surname[i]
+        correct_temperature = "y"
+        correct_acetone_loss = "y"
+        weight_retentions = 1
+        barometric_pressure = df.pb[i]
+        temperature_electrode = 37
+        temperature_body = df.temp[i]
+        temperature_ve = temperature_body
+        default_pc = false
+
+        if !default_pc
+            λ_sf6 = df.λ_sf6_measured[i]
+            λ_ethane = df.λ_ethane_measured[i]
+            λ_cyclo = df.λ_cyclo_measured[i]
+            λ_iso = df.λ_iso_measured[i]
+            λ_dth = df.λ_dth_measured[i]
+            λ_acetone = df.λ_acetone_measured[i]
+        else
+            λ_sf6 = df.λ_sf6_def[i]
+            λ_ethane = df.λ_ethane_def[i]
+            λ_cyclo = df.λ_cyclo_def[i]
+            λ_iso = df.λ_iso_def[i]
+            λ_dth = df.λ_dth_def[i]
+            λ_acetone = df.λ_acetone_def[i]
+        end
+
+        a_peak_sf6 = df.a1_sf6_area[i]
+        a_peak_ethane = df.a1_ethane_area[i]
+        a_peak_cyclo = df.a1_cyclo_area[i]
+        a_peak_iso = df.a1_iso_area[i]
+        a_peak_dth = df.a1_dth_area[i]
+        a_peak_acetone = df.a1_acetone_area[i]
+
+        e_peak_sf6 = df.g1_sf6_area[i]
+        e_peak_ethane = df.g1_ethane_area[i]
+        e_peak_cyclo = df.g1_cyclo_area[i]
+        e_peak_iso = df.g1_iso_area[i]
+        e_peak_dth = df.g1_dth_area[i]
+        e_peak_acetone = df.g1_acetone_area[i]
+
+
+        if ismissing(df.m1_sf6_area[i])
+            v_peak_sf6 = missing
+            v_peak_ethane = missing
+            v_peak_cyclo = missing
+            v_peak_iso = missing
+            v_peak_dth = missing
+            v_peak_acetone = missing
+        else
+            v_peak_sf6 = df_m1_sf6_area[i]
+            v_peak_ethane = df_m1_ethane_area[i]
+            v_peak_cyclo = df_m1_cyclo_area[i]
+            v_peak_iso = df_m1_iso_area[i]
+            v_peak_dth = df_m1_dth_area[i]
+            v_peak_acetone = df_m1_acetone_area[i]
+        end
+
+        ve	= df.ve_a1[i]
+        qt	=  df.co_recalculated_a1[i]
+        volume_gas_arterial	= df.vial_a1_gas_volume[i] 
+        volume_blood_arterial	= df.vial_a1_blood_volume[i]
+
+        volume_heparin_arterial	= 0  # For now we do everything with reverse Fick
+        volume_gas_venous= 0
+        volume_blood_venous	= 0
+        volume_heparin_venous = 0
+
+        hb = df.art_hb_coox[i]
+        vo2 = df.vo2[i]
+        vco2 =	 df.vco2[i]
+        fio2= df.fio2[i]
+        pao2 = df.art_po2[i]
+        paco2= df.art_pco2[i]
+        ph= df.art_ph[i]
+        fico2 = 0
+
+        first_line = [n, correct_temperature, correct_acetone_loss, weight_retentions, barometric_pressure, temperature_electrode, temperature_body, temperature_ve, coeff_var, 
+        a_peak_sf6, a_peak_ethane, a_peak_cyclo,a_peak_iso, a_peak_dth, a_peak_acetone, e_peak_sf6, e_peak_ethane, e_peak_cyclo, e_peak_iso, e_peak_dth, e_peak_acetone, v_peak_sf6, v_peak_ethane, v_peak_cyclo, v_peak_iso, v_peak_dth, v_peak_acetone,
+        ve, qt, volume_gas_arterial, volume_blood_arterial, volume_heparin_arterial, volume_gas_venous, volume_blood_venous, volume_heparin_venous, hb, vo2, vco2, fio2, pao2, paco2, ph, fico2]
+
+
+
+        a_peak_sf6 = df.a2_sf6_area[i]
+        a_peak_ethane = df.a2_ethane_area[i]
+        a_peak_cyclo = df.a2_cyclo_area[i]
+        a_peak_iso = df.a2_iso_area[i]
+        a_peak_dth = df.a2_dth_area[i]
+        a_peak_acetone = df.a2_acetone_area[i]
+
+        e_peak_sf6 = df.g2_sf6_area[i]
+        e_peak_ethane = df.g2_ethane_area[i]
+        e_peak_cyclo = df.g2_cyclo_area[i]
+        e_peak_iso = df.g2_iso_area[i]
+        e_peak_dth = df.g2_dth_area[i]
+        e_peak_acetone = df.g2_acetone_area[i]
+
+
+        if ismissing(df.m2_sf6_area[i])
+            v_peak_sf6 = missing
+            v_peak_ethane = missing
+            v_peak_cyclo = missing
+            v_peak_iso = missing
+            v_peak_dth = missing
+            v_peak_acetone = missing
+        else
+            v_peak_sf6 = df_m2_sf6_area[i]
+            v_peak_ethane = df_m2_ethane_area[i]
+            v_peak_cyclo = df_m2_cyclo_area[i]
+            v_peak_iso = df_m2_iso_area[i]
+            v_peak_dth = df_m2_dth_area[i]
+            v_peak_acetone = df_m2_acetone_area[i]
+        end
+
+        ve	= df.ve_a2[i]
+        qt	=  df.co_recalculated_a2[i]
+        volume_gas_arterial	= df.vial_a2_gas_volume[i] 
+        volume_blood_arterial	= df.vial_a2_blood_volume[i]
+
+
+        second_line = [n, correct_temperature, correct_acetone_loss, weight_retentions, barometric_pressure, temperature_electrode, temperature_body, temperature_ve, coeff_var, 
+        a_peak_sf6, a_peak_ethane, a_peak_cyclo,a_peak_iso, a_peak_dth, a_peak_acetone, e_peak_sf6, e_peak_ethane, e_peak_cyclo, e_peak_iso, e_peak_dth, e_peak_acetone, v_peak_sf6, v_peak_ethane, v_peak_cyclo, v_peak_iso, v_peak_dth, v_peak_acetone,
+        ve, qt, volume_gas_arterial, volume_blood_arterial, volume_heparin_arterial,  volume_gas_venous, volume_blood_venous, volume_heparin_venous, hb, vo2, vco2, fio2, pao2, paco2, ph, fico2]
+
+
+        push!(df_to_write, first_line)
+        push!(df_to_write, second_line)
+
+    end
+
+    complete_name = name_export_file * ".csv"
+    CSV.write(complete_name, df_to_write, delim = ';', decimal = ',')
+
+    return nothing
+
+end
