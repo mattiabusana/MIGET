@@ -215,7 +215,7 @@ function plot_defined_vq(qt, sdq1, sdq2, qmean1, qmean2, qratio, vdvt, qsqt; sav
 end
 
 
-function plot_miget_output(path_file::String; saving = false, name_saved_file = "miget_output", file_extension = "png")
+function plot_miget_outputx(path_file::String; saving = false, name_saved_file = "miget_output", file_extension = "png")
 
 
     f = readlines(path_file)
@@ -231,7 +231,6 @@ function plot_miget_output(path_file::String; saving = false, name_saved_file = 
         push!(perfusions, arr_line[3])
         push!(ventilations, arr_line[2])
     end
-
 
     shunt = parse(Float32, split(f[1])[4])
     deadspace = parse(Float32, split(f[end])[5])
@@ -258,6 +257,12 @@ function plot_miget_output(path_file::String; saving = false, name_saved_file = 
     itp_perf = interpolate(comparts, perfusions, FritschCarlsonMonotonicInterpolation())
     itp_vent = interpolate(comparts, ventilations, FritschCarlsonMonotonicInterpolation())
 
+
+    new_x = collect(new_x)
+    perf_interpolated = convert.(Float32, itp_perf.(new_x))
+    vent_interpolated = convert.(Float32, itp_vent.(new_x))
+
+
     CairoMakie.activate!(type = "png")
 
 
@@ -266,8 +271,8 @@ function plot_miget_output(path_file::String; saving = false, name_saved_file = 
         xminorticks = IntervalsBetween(8), xminorgridvisible = true, yticks = LinearTicks(4), xlabelsize = 18)
     scatter!(ax1, comparts, perfusions, color = (:firebrick, 0.9), markersize = 10)
     scatter!(ax1, comparts, ventilations, color = (:cornflowerblue, 0.9), markersize = 15, marker = '◼', markerstrokewidth = 0.1)
-    lines!(ax1, new_x, itp_perf.(new_x), label = "Perfusion", color = :firebrick)
-    lines!(ax1, new_x, itp_vent.(new_x), label = "Ventilation", color = :cornflowerblue, linestyle = :dash)
+    lines!(ax1, new_x, perf_interpolated, label = "Perfusion", color = :firebrick)
+    lines!(ax1, new_x, vent_interpolated, label = "Ventilation", color = :cornflowerblue, linestyle = :dash)
 
 
     if maximum(perfusions) > maximum(ventilations)
@@ -278,30 +283,45 @@ function plot_miget_output(path_file::String; saving = false, name_saved_file = 
     end
 
 
+    min_range = Float32(0.0016)
+    shunt = Float32(shunt)
+    deadspace = Float32(deadspace)
+    max_range = Float32(1000)
+
+
+    if whoismax <= 0.8
+        r = 0.14
+    elseif whoismax < 1.5 && whoismax >= 0.5
+        r = 0.18
+    elseif whoismax < 2.5 && whoismax >= 1.5
+        r =  0.22
+    end
+
 
     if maximum(perfusions) > shunt
 
-        lines!(ax1, 0.0016, shunt, linewidth = 0.5, color = :firebrick)
-        scatter!(ax1, (0.0016, shunt), color = (:firebrick, 0.9), markersize = 10)
+        lines!(ax1, [min_range, min_range], [0, shunt], linewidth = 0.5, color = :firebrick)
+        scatter!(ax1, (min_range, shunt), color = (:firebrick, 0.9), markersize = 10)
         text!("Shunt = $qs_100%", position = (0.0016 - 0.0006, shunt + 0.05), color = :firebrick, textsize = 15)
 
+
     else
-        arrows!([0.0016], [whoismax - 0.1], [0], [0.1], color = (:firebrick, 0.9))
-        scatter!(ax1, (0.0016, whoismax - 0.1), color = (:firebrick, 0.9), markersize = 10)
+        arrows!([min_range], [whoismax - 0.1], [0], [0.1], color = (:firebrick, 0.9))
+        scatter!(ax1, (min_range, whoismax - 0.1), color = (:firebrick, 0.9), markersize = 10)
         text!("Shunt = $qs_100%", position = (0.0016 - 0.0006, whoismax - 0.15), color = :firebrick, textsize = 15)
 
     end
 
 
     if maximum(ventilations) > deadspace
-        lines!(ax1, 1000, deadspace, linewidth = 0.5, color = :cornflowerblue,)
-        scatter!(ax1, (1000, deadspace), color = (:cornflowerblue, 0.9), markersize = 15, marker = '◼')
+        lines!(ax1, [max_range], [deadspace], linewidth = 0.5, color = :cornflowerblue,)
+        scatter!(ax1, (max_range, deadspace), color = (:cornflowerblue, 0.9), markersize = 15, marker = '◼')
         text!("Deadspace = $qs_100%", position = (1000 - 940, deadspace + 0.05), color = :cornflowerblue, textsize = 15)
 
     else
-        arrows!([1000], [whoismax - 0.1], [0], [0.1], color = (:cornflowerblue, 0.9))
-        scatter!(ax1, (1000, whoismax - 0.1), color = (:cornflowerblue, 0.9), markersize = 15, marker = '◼')
-        text!("Deadspace = $vd_vt_100%", position = (1000 - 940, whoismax - 0.15), color = :cornflowerblue, textsize = 15)
+        arrows!([max_range], [whoismax - 0.1], [0], [0.1], color = (:cornflowerblue, 0.9))
+        scatter!(ax1, (max_range, whoismax - 0.1), color = (:cornflowerblue, 0.9), markersize = 15, marker = '◼')
+        text!("Deadspace = $vd_vt_100%", position = (1000 - 940, whoismax - r), color = :cornflowerblue, textsize = 15)
 
     end
 
@@ -380,6 +400,35 @@ function plot_papv_pepv(dataset::DataFrame, row_selected, sample; corrected = tr
     return nothing
 
 
+end
+
+
+# The next function takes a list of pairs name : best rss sample and a directory where gas or flows files are stored
+# and outputs a list of only the files that need to be plotted. 
+
+function select_best_rss_file(tup, directory)
+
+    list_keep = []
+
+    list_files = (sort ∘ readdir)(directory)
+    sorted_tup = sort(tup)
+
+    chunked = collect(Iterators.partition(list_files, 2))
+
+    for (tup_element, patient) in zip(sorted_tup, chunked)
+
+        cond = split(tup_element[2], "a")[2]
+        
+        if occursin(cond, patient[1])
+            push!(list_keep, patient[1])
+        elseif occursin(cond, patient[2])
+            push!(list_keep, patient[2])
+        end
+
+    end
+
+
+    return list_keep
 end
 
 

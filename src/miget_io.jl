@@ -729,21 +729,6 @@ function import_batch_vqbohr!(dataset::DataFrame, path_to_dir::String)
     list_bohr = readdir(path_to_dir)
 
 
-    #=
-
-    files_to_keep = []
-
-    for f in list_bohr
-        if contains(f, "BOHR") 
-            new_name = r * f
-            push!(files_to_keep, new_name)
-
-        end
-
-    end
-
-    =#
-
     extended_names = joinpath.(path_to_dir, list_bohr)
 
     df_to_join = import_output_vqbohr.(extended_names)
@@ -851,6 +836,92 @@ function import_batch_vqbohr!(dataset::DataFrame, path_to_dir::String)
 
 end
 
+
+function read_flow_file(path_file)   # Function to load the flows on the output file: needed for plotting
+
+    f = readlines(path_file)
+
+    comparts = []
+    perfusions = []
+    ventilations = []
+
+
+    for line in f
+        arr_line = split(line)
+        push!(comparts, arr_line[1])
+        push!(perfusions, arr_line[3])
+        push!(ventilations, arr_line[2])
+    end
+
+    shunt = parse(Float32, split(f[1])[4])
+    deadspace = parse(Float32, split(f[end])[5])
+
+    comparts = parse.(Float32, comparts)
+    perfusions = parse.(Float32, perfusions)
+    ventilations = parse.(Float32, ventilations)
+
+    deleteat!(comparts, 1)
+    deleteat!(perfusions, 1)
+    deleteat!(ventilations, 1)
+
+    deleteat!(comparts, length(comparts))
+    deleteat!(perfusions, length(perfusions))
+    deleteat!(ventilations, length(ventilations))
+
+    qs = shunt / (shunt + sum(perfusions))
+    vd_vt = deadspace / (sum(ventilations) + deadspace)
+
+    return comparts, ventilations, perfusions, qs, vd_vt
+
+end
+
+function read_gases_file(path_file) # Function to load the gases on the output file: needed for plotting
+
+    f = readlines(path_file)
+
+    comparts = []
+
+    ret_homo = []
+    ret_pat = []
+
+    ex_homo = []
+    ex_pat = []
+
+    pcs_pat = []
+    points_ret_pat = []
+    points_ex_pat = []
+
+
+    for line in f
+            arr_line = split(line)
+            push!(comparts, arr_line[1])
+            push!(ret_homo, arr_line[2])
+            push!(ret_pat, arr_line[3])
+            push!(ex_homo, arr_line[4])
+            push!(ex_pat, arr_line[5])
+            push!(pcs_pat, arr_line[6])
+            push!(points_ret_pat, arr_line[7])
+            push!(points_ex_pat, arr_line[8])
+
+    end
+
+
+    comparts = parse.(Float32, comparts)
+    ret_homo = parse.(Float32, ret_homo)
+    ret_pat = parse.(Float32, ret_pat)
+    ex_homo = parse.(Float32, ex_homo);
+    ex_pat = parse.(Float32, ex_pat);
+    pcs_pat = parse.(Float32, pcs_pat);
+    points_ret_pat = parse.(Float32, points_ret_pat)
+    points_ex_pat = parse.(Float32, points_ex_pat)
+
+    pcs_pat = pcs_pat[1:6]
+    points_ret_pat = points_ret_pat[1:6]
+    points_ex_pat = points_ex_pat[1:6];
+
+    return comparts, ret_homo, ret_pat, ex_homo, ex_pat, pcs_pat, points_ret_pat, points_ex_pat
+
+end
 
 
 function export_modern_miget(df :: DataFrame, coeff_var = 0.045, name_export_file = "export_miget")
@@ -1002,5 +1073,28 @@ function export_modern_miget(df :: DataFrame, coeff_var = 0.045, name_export_fil
     CSV.write(complete_name, df_to_write, delim = ';', decimal = ',')
 
     return nothing
+
+end
+
+
+function batch_export_short(df :: DataFrame, coeff_var)
+
+    l_dirs = readdir()
+
+    if "exports" in l_dirs
+        cd("exports")
+    else
+        mkdir("exports")
+        cd("exports")   
+    end
+
+
+    for i in 1:size(df, 1)
+        write_input_short(df, i; default_pc = false, scaling_peak_factor = 1e-4, coeff_var = coeff_var)
+        println("Done $i")
+    end
+
+    cd("../")
+
 
 end

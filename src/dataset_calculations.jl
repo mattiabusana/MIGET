@@ -248,3 +248,56 @@ function miget_gases_calculations!(dataset :: DataFrame)
 
 
 end
+
+# Once the the output files of VQBOHR are reimported into the dataset, it is needed to choose the sample with the 
+# smallest RSS. The next function takes the dataset as argument and returns a final dataset in which all the MIGET
+# variables are also outputted with a _best suffix to indicate the ones with the lowest RSS. Morever also a list of
+# pairs is outputted "tup" with a combination between names on the dataset and the associated best sample. This is useful 
+# for later use. 
+
+function select_best_sample(df :: DataFrame)   
+
+    l = zeros(size(df, 1), 27)
+    tup = []
+
+    for (i,row) in enumerate(eachrow(df))
+        
+    if row.rss_a1 <= row.rss_a2
+            row_df = DataFrame(row)
+            df_best = row_df[:, Between(:bf_001_01_a1, :vent_dead_a1)]
+            df_best.rss_best .= row.rss_a1
+            m = values(df_best[1, :])
+            tuple_to_add = (df.surname[i], "a1")
+            push!(tup, tuple_to_add)
+            
+            
+    elseif row.rss_a1 > row.rss_a2
+            println("")
+            row_df = DataFrame(row)
+            df_best = row_df[:, Between(:bf_001_01_a2, :vent_dead_a2)]
+            df_best.rss_best .= row.rss_a2
+            m = values(df_best[1,:])
+            tuple_to_add = (df.surname[i], "a2")
+            push!(tup, tuple_to_add)
+
+    end
+
+    l[i, :] .= m
+
+    end
+
+    cols_keep = select(df, Between(:bf_001_01_a1, :vent_dead_a1))
+    names_keep = names(cols_keep)
+    new_names = replace.(names_keep, "_a1" => "_best")
+    insert!(new_names, length(new_names)+1, "rss_best")
+
+    df_merge = DataFrame(l, new_names, makeunique = true)
+    select!(df_merge, Not(:rss_best_1))
+
+    surs = df.surname
+    df_merge[!, :surname] .= surs
+    df_finale = outerjoin(df, df_merge, on = :surname)
+
+    return df_finale, tup
+
+end
