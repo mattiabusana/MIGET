@@ -301,304 +301,326 @@ end
 
 function import_output_vqbohr(path_to_file::String)
 
-        f = readlines(path_to_file)
 
-        global counter_non_empty = []
+    function custom_split(s, pos)
+
+        k = split(s , x -> (x .== ' '|| x .== '-'))
+        #l = k[1]
+        o = []
+    
+    for i in k
+        if !isempty(i)
+               push!(o, i)
+           else
+               continue
+           end
+    end
+    
+        final_number = parse(Float64, o[pos])
+    
+        return final_number
+    
+    end
+    
+    
+
+    f = readlines(path_to_file)
+
+    global counter_non_empty = []
 
 
-        global title = ""
-        global rss = 0
-        global bf_shunt = 1.0
-        global bf_01_001 = 1.0
-        global vent_01_001 = 1.0
-        global bf_001_01 = 1.0
-        global vent_001_01 = 1.0
-        global bf_01_1 = 1.0
-        global vent_01_1 = 1.0
-        global bf_1_10 = 1.0
-        global vent_1_10 = 1.0
-        global bf_10_100 = 1.0
-        global vent_10_100 = 1.0
-        global vent_dead = 1.0
-        global qmean = 1.0
-        global sdq = 1.0
-        global skewq = 1.0
-        global meanva = 1.0
-        global sdva = 1.0
-        global skewva = 1.0
-        global re_star_sf6 = 1.0
-        global re_star_ethane = 1.0
-        global re_star_cyclo = 1.0
-        global re_star_iso = 1.0
-        global re_star_dth = 1.0
-        global re_star_acetone = 1.0
-        global predicted_measured_po2_diff = 1.0
+    global title = ""
+    global rss = 0
+    global bf_shunt = 1.0
+    global bf_01_001 = 1.0
+    global vent_01_001 = 1.0
+    global bf_001_01 = 1.0
+    global vent_001_01 = 1.0
+    global bf_01_1 = 1.0
+    global vent_01_1 = 1.0
+    global bf_1_10 = 1.0
+    global vent_1_10 = 1.0
+    global bf_10_100 = 1.0
+    global vent_10_100 = 1.0
+    global vent_dead = 1.0
+    global qmean = 1.0
+    global sdq = 1.0
+    global skewq = 1.0
+    global meanva = 1.0
+    global sdva = 1.0
+    global skewva = 1.0
+    global re_star_sf6 = 1.0
+    global re_star_ethane = 1.0
+    global re_star_cyclo = 1.0
+    global re_star_iso = 1.0
+    global re_star_dth = 1.0
+    global re_star_acetone = 1.0
+    global predicted_measured_po2_diff = 1.0
 
 
     for (i, line) in enumerate(f)
 
+    
+
+        if i == 6
+
+
+            title = split(line, ":")[end]
+            title = strip(title)
+
+
+        elseif i == 22
+
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
         
+        elseif i == 23
 
-            if i == 6
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 24
 
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 25
 
-                title = split(line, ":")[end]
-                title = strip(title)
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 26
 
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 27
 
-            elseif i == 22
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 28
 
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            
-            elseif i == 23
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 29
 
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 24
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 25
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 26
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 27
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 28
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 29
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-            elseif i == 30
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-
-            elseif i == 31
-
-                check_empty = isempty(line)
-                if check_empty 
-                    push!(counter_non_empty, i)
-                end
-
-        elseif i == 32
+            check_empty = isempty(line)
+            if check_empty 
+                push!(counter_non_empty, i)
+            end
+        elseif i == 30
 
             check_empty = isempty(line)
             if check_empty 
                 push!(counter_non_empty, i)
             end
 
-        
-
-        elseif i == 33
+        elseif i == 31
 
             check_empty = isempty(line)
             if check_empty 
                 push!(counter_non_empty, i)
             end
 
+    elseif i == 32
 
-        elseif i == 34
+        check_empty = isempty(line)
+        if check_empty 
+            push!(counter_non_empty, i)
+        end
 
-            check_empty = isempty(line)
-            if check_empty 
-                push!(counter_non_empty, i)
-            end
+    
+
+    elseif i == 33
+
+        check_empty = isempty(line)
+        if check_empty 
+            push!(counter_non_empty, i)
+        end
 
 
-        elseif i == 35
+    elseif i == 34
 
-            check_empty = isempty(line)
-            if check_empty 
-                push!(counter_non_empty, i)
-            end
+        check_empty = isempty(line)
+        if check_empty 
+            push!(counter_non_empty, i)
+        end
 
-            end
+
+    elseif i == 35
+
+        check_empty = isempty(line)
+        if check_empty 
+            push!(counter_non_empty, i)
+        end
+
+        end
 
     end
 
 
     for (i, line) in enumerate(f)
 
-        if i == 35 + counter_non_empty[1] - 22
+    if i == 35 + counter_non_empty[1] - 22
 
-            rss = parse(Float64, split(line)[end])
+        rss = parse(Float64, split(line)[end])
 
-        elseif i == 40 + counter_non_empty[1] - 22
+    elseif i == 40 + counter_non_empty[1] - 22
 
-            bf_shunt = parse(Float64, split(line)[4])
+        bf_shunt = custom_split(line, 4)
 
-        elseif i == 41 + counter_non_empty[1] - 22
-
-
-            bf_01_001 = parse(Float64, split(line)[6])
-            vent_01_001 = parse(Float64, split(line)[7])
+    elseif i == 41 + counter_non_empty[1] - 22
 
 
-        elseif i == 42 + counter_non_empty[1] - 22
+        bf_01_001 = custom_split(line, 6)
+        vent_01_001 = custom_split(line, 7)
 
 
-            bf_001_01 = parse(Float64, split(line)[6])
-            vent_001_01 = parse(Float64, split(line)[7])
-
-        elseif i == 43 + counter_non_empty[1] - 22
-
-            bf_01_1 = parse(Float64, split(line)[6])
-            vent_01_1 = parse(Float64, split(line)[7])
-
-        elseif i == 44 + counter_non_empty[1] - 22
-
-            bf_1_10 = parse(Float64, split(line)[6])
-            vent_1_10 = parse(Float64, split(line)[7])
-
-        elseif i == 45 + counter_non_empty[1] - 22
-
-            bf_10_100 = parse(Float64, split(line)[6])
-            vent_10_100 = parse(Float64, split(line)[7])
-
-        elseif i == 46 + counter_non_empty[1] - 22
-
-            vent_dead = parse(Float64, split(line)[5])
-
-        elseif i == 49 +counter_non_empty[1] - 22
-
-            qmean = parse(Float64, split(line)[7])
-
-        elseif i == 50 + counter_non_empty[1] - 22
-
-            sdq = parse(Float64, split(line)[8])
-
-        elseif i == 51 + counter_non_empty[1] - 22
-
-            skewq = parse(Float64, split(line)[8])
-
-        elseif i == 53 + counter_non_empty[1] - 22
-
-            meanva = parse(Float64, split(line)[6])
-        elseif i == 54 + counter_non_empty[1] - 22
-
-            sdva = parse(Float64, split(line)[7])
-        elseif i == 55 + counter_non_empty[1] - 22
-            skewva = parse(Float64, split(line)[7])
+    elseif i == 42 + counter_non_empty[1] - 22
 
 
-        elseif i == 59 + counter_non_empty[1] - 22
-            re_star_sf6 = parse(Float64, split(line)[10])
-        elseif i == 60 + counter_non_empty[1] - 22
-            re_star_ethane = parse(Float64, split(line)[10])
-        elseif i == 61 + counter_non_empty[1] - 22
-            re_star_cyclo = parse(Float64, split(line)[10])
-        elseif i == 62 + counter_non_empty[1] - 22
-            re_star_iso = parse(Float64, split(line)[10])
-        elseif i == 63 + counter_non_empty[1] - 22
-            re_star_dth = parse(Float64, split(line)[10])
-        elseif i == 64 + counter_non_empty[1] - 22
-            re_star_acetone = parse(Float64, split(line)[10])
+        bf_001_01 = custom_split(line, 6)
+        vent_001_01 = custom_split(line, 7)
+
+    elseif i == 43 + counter_non_empty[1] - 22
+
+        bf_01_1 = custom_split(line, 6)
+        vent_01_1 = custom_split(line, 7)
+
+    elseif i == 44 + counter_non_empty[1] - 22
+
+        bf_1_10 = custom_split(line,6)
+        vent_1_10 = custom_split(line,7)
+
+    elseif i == 45 + counter_non_empty[1] - 22
+
+        bf_10_100 = custom_split(line,6)
+        vent_10_100 =custom_split(line,7)
+
+    elseif i == 46 + counter_non_empty[1] - 22
+
+        vent_dead = custom_split(line,5)
+
+    elseif i == 49 +counter_non_empty[1] - 22
+
+        qmean = custom_split(line,7)
+
+    elseif i == 50 + counter_non_empty[1] - 22
+
+        sdq = custom_split(line,8)
+
+    elseif i == 51 + counter_non_empty[1] - 22
+
+        skewq = custom_split(line,8)
+
+    elseif i == 53 + counter_non_empty[1] - 22
+
+        meanva = custom_split(line,6)
+    elseif i == 54 + counter_non_empty[1] - 22
+
+        sdva = custom_split(line,7)
+    elseif i == 55 + counter_non_empty[1] - 22
+        skewva = custom_split(line,7)
 
 
-        elseif i == 279 + counter_non_empty[1] - 22
-            predicted_measured_po2_diff = parse(Float64, split(line)[7])
+    elseif i == 59 + counter_non_empty[1] - 22
+        re_star_sf6 = custom_split(line, 10)
+    elseif i == 60 + counter_non_empty[1] - 22
+        re_star_ethane = custom_split(line, 10)
+    elseif i == 61 + counter_non_empty[1] - 22
+        re_star_cyclo = custom_split(line, 10)
+    elseif i == 62 + counter_non_empty[1] - 22
+        re_star_iso = custom_split(line, 10)
+    elseif i == 63 + counter_non_empty[1] - 22
+        re_star_dth = custom_split(line, 10)
+    elseif i == 64 + counter_non_empty[1] - 22
+        re_star_acetone = custom_split(line, 10)
 
 
-        end
+    elseif i == 279 + counter_non_empty[1] - 22
+        predicted_measured_po2_diff = parse(Float64, split(s)[end])
 
 
     end
 
-        pre = Dict("title" => title,
-            "rss" => rss,
-            "bf_shunt" => bf_shunt,
-            "bf_01_001" => bf_01_001,
-            "vent_01_001" => vent_01_001,
-            "bf_001_01" => bf_001_01,
-            "vent_001_01" => vent_001_01,
-            "bf_01_1" => bf_01_1,
-            "vent_01_1" => vent_01_1,
-            "bf_1_10" => bf_1_10,
-            "vent_1_10" => vent_1_10,
-            "bf_10_100" => bf_10_100,
-            "vent_10_100" => vent_10_100,
-            "vent_dead" => vent_dead,
-            "qmean" => qmean,
-            "sdq" => sdq,
-            "skewq" => skewq,
-            "meanva" => meanva,
-            "sdva" => sdva,
-            "skewva" => skewva,
-            "re_star_sf6" => re_star_sf6,
-            "re_star_ethane" => re_star_ethane,
-            "re_star_cyclo" => re_star_cyclo,
-            "re_star_iso" => re_star_iso,
-            "re_star_dth" => re_star_dth,
-            "re_star_acetone" => re_star_acetone,
-            "predicted_measured_po2_diff" => predicted_measured_po2_diff)
+
+    end
+
+    pre = Dict("title" => title,
+        "rss" => rss,
+        "bf_shunt" => bf_shunt,
+        "bf_01_001" => bf_01_001,
+        "vent_01_001" => vent_01_001,
+        "bf_001_01" => bf_001_01,
+        "vent_001_01" => vent_001_01,
+        "bf_01_1" => bf_01_1,
+        "vent_01_1" => vent_01_1,
+        "bf_1_10" => bf_1_10,
+        "vent_1_10" => vent_1_10,
+        "bf_10_100" => bf_10_100,
+        "vent_10_100" => vent_10_100,
+        "vent_dead" => vent_dead,
+        "qmean" => qmean,
+        "sdq" => sdq,
+        "skewq" => skewq,
+        "meanva" => meanva,
+        "sdva" => sdva,
+        "skewva" => skewva,
+        "re_star_sf6" => re_star_sf6,
+        "re_star_ethane" => re_star_ethane,
+        "re_star_cyclo" => re_star_cyclo,
+        "re_star_iso" => re_star_iso,
+        "re_star_dth" => re_star_dth,
+        "re_star_acetone" => re_star_acetone,
+        "predicted_measured_po2_diff" => predicted_measured_po2_diff)
 
 
-        surname = split(title, "_")[1]
+    surname = split(title, "_")[1]
 
-        delete!(pre, "title")
+    delete!(pre, "title")
 
-        function rename_dict(name_dict, suffix)
+    function rename_dict(name_dict, suffix)
 
-            new_name = name_dict * "_" * suffix
-            return new_name
+        new_name = name_dict * "_" * suffix
+        return new_name
 
-        end
-
-
-        names_dict = keys(pre)
-        vals = values(pre)
+    end
 
 
-        if contains(title, "a1")
-            new_names = rename_dict.(names_dict, "a1")
-            new_dict = Dict(zip(new_names, vals))
-            push!(new_dict, "sample" => "a1")
-        else
-            new_names = rename_dict.(names_dict, "a2")
-            new_dict = Dict(zip(new_names, vals))
-            push!(new_dict, "sample" => "a2")
-
-        end
+    names_dict = keys(pre)
+    vals = values(pre)
 
 
+    if contains(title, "a1")
+        new_names = rename_dict.(names_dict, "a1")
+        new_dict = Dict(zip(new_names, vals))
+        push!(new_dict, "sample" => "a1")
+    else
+        new_names = rename_dict.(names_dict, "a2")
+        new_dict = Dict(zip(new_names, vals))
+        push!(new_dict, "sample" => "a2")
 
-        d = DataFrame(new_dict)
+    end
 
-        d.surname .= surname
+
+
+    d = DataFrame(new_dict)
+
+    d.surname .= surname
 
     return d
 
 end
-
 
 function import_batch_vqbohr(path_to_dir::String)
 
