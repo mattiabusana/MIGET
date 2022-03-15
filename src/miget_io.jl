@@ -548,7 +548,7 @@ function import_output_vqbohr(path_to_file::String)
 
 
     elseif i == 279 + counter_non_empty[1] - 22
-        predicted_measured_po2_diff = parse(Float64, split(s)[end])
+        predicted_measured_po2_diff = parse(Float64, split(line)[end])
 
 
     end
